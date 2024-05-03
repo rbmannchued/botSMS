@@ -1,3 +1,9 @@
+#include "FS.h"
+#include "SD.h"
+#include "SPI.h"
+
+
+
 bool temSMS = false;
 bool temChamada = false;
 String telefoneSMS;
@@ -19,7 +25,17 @@ void setup() {
   Serial.begin(9600);
   Serial2.begin(9600);
   pinMode(led, OUTPUT);
- // digitalWrite(led, HIGH);
+  
+ if(!SD.begin(5)){
+    Serial.println("Card Mount Failed");
+    return;
+  }
+  uint8_t cardType = SD.cardType();
+
+  if(cardType == CARD_NONE){
+    Serial.println("No SD card attached");
+    return;
+  }
 
   Serial2.print("AT+CMGF=1\n;AT+CNMI=2,2,0,0,0\n;ATX4\n;AT+COLP=1\n;AT+CLIP=1\n");
 
@@ -35,7 +51,8 @@ void loop() {
 if (temChamada) {
     Serial.println("Chamada Recebida de: " + numeroChamada);
     Serial.println("Atendendo chamada...");
-    
+    writeFile(SD, "/info.txt", "chamada: " );
+     writeFile(SD, "/info.txt",  "123" );
     // Atender chamada
     Serial2.println("ATA");
    digitalWrite(led, HIGH);
